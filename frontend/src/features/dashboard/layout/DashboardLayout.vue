@@ -26,12 +26,12 @@ const breadcrumb = useBreadcrumbStore()
           <Separator orientation="vertical" class="mr-2 data-[orientation=vertical]:h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem class="hidden md:block">
+              <BreadcrumbItem>
                 <BreadcrumbLink as-child>
                   <RouterLink to="/">Dashboard</RouterLink>
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator v-if="$route.fullPath !== '/'" class="hidden md:block" />
+              <BreadcrumbSeparator v-if="$route.fullPath !== '/'" />
               <template v-for="nav in breadcrumb.navs" :key="nav.name">
                 <BreadcrumbItem>
                   <BreadcrumbLink v-if="nav.url" as-child>

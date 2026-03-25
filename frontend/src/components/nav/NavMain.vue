@@ -6,6 +6,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import { RouterLink, useRoute } from 'vue-router'
 import { computed } from 'vue'
@@ -26,13 +27,19 @@ const mapped = computed(() => {
     isActive: nav.url === '/' ? route.fullPath === '/' : route.fullPath.startsWith(nav.url),
   }))
 })
+
+const { toggleSidebar, isMobile } = useSidebar()
 </script>
 
 <template>
   <SidebarGroup class="group-data-[collapsible=icon]:hidden">
     <SidebarMenu>
       <SidebarMenuItem v-for="item in mapped" :key="item.name">
-        <SidebarMenuButton as-child :is-active="item.isActive">
+        <SidebarMenuButton
+          as-child
+          :is-active="item.isActive"
+          @click="() => isMobile && toggleSidebar()"
+        >
           <RouterLink :to="item.url">
             <component :is="item.icon" />
             <span>{{ item.name }}</span>
