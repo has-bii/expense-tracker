@@ -45,4 +45,8 @@ export const routes: RouteRecordRaw[] = [
     path: '/error',
     component: () => import('@/features/global/view/error.vue'),
   },
+  {
+    path: '/:pathMatch(.*)*',
+    component: () => import('@/features/global/view/NotFound.vue'),
+  },
 ]
