@@ -108,5 +108,5 @@ export const useAuthStore = defineStore('auth', () => {
     await getUser()
   }
 
-  return { isAuthenticated, isInitialized, isLoggingOut, login, logout, getUser, refreshUser }
+  return { isAuthenticated, isInitialized, isLoggingOut, user, login, logout, getUser, refreshUser }
 })

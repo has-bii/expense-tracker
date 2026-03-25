@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { useAuthStore } from '@/stores/auth'
-import { Loader2 } from 'lucide-vue-next'
+import { useBreadcrumbStore } from '@/stores/breadcrumb'
+import { onBeforeMount } from 'vue'
 
-const auth = useAuthStore()
+const breadcrumb = useBreadcrumbStore()
+
+onBeforeMount(() => {
+  breadcrumb.setNavs([])
+})
 </script>
 
 <template>
-  <section class="w-screen min-h-dvh flex flex-col items-center justify-center">
-    <h1 class="text-center text-4xl font-bold">Welcome</h1>
-    <Button @click="auth.logout" :disabled="auth.isLoggingOut">
-      Logout
-      <Loader2 v-if="auth.isLoggingOut" class="animate-spin" />
-    </Button>
-  </section>
+  <div class="grid auto-rows-min gap-4 md:grid-cols-3">
+    <div class="bg-muted/50 aspect-video rounded-xl" />
+    <div class="bg-muted/50 aspect-video rounded-xl" />
+    <div class="bg-muted/50 aspect-video rounded-xl" />
+  </div>
+  <div class="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
 </template>

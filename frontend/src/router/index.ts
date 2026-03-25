@@ -17,12 +17,12 @@ router.beforeEach(async (to, _from) => {
 
   // Redirect logged-in users
   if (to.meta.guestOnly && auth.isAuthenticated) {
-    return { name: 'index' }
+    return { path: 'dashboard' }
   }
 
   // Redirect unauthenticated users to login
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return { name: 'login', query: { redirect: to.fullPath } }
+    return { path: 'login', query: { redirect: to.fullPath } }
   }
 })
 

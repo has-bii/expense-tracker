@@ -7,7 +7,6 @@ const auth = useAuthStore()
 </script>
 
 <template>
-  <!-- Block rendering until first auth check is done -->
   <div
     v-if="!auth.isInitialized"
     class="w-screen h-dvh flex flex-col items-center justify-center gap-4"
