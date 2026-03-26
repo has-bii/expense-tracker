@@ -44,7 +44,7 @@ const onClose = () => {
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Update category: {{ category.value?.name }}</DialogTitle>
-        <DialogDescription>To create a new category, enter name and icon</DialogDescription>
+        <DialogDescription>Change name or icon to change category</DialogDescription>
       </DialogHeader>
       <form @submit.prevent="form.handleSubmit">
         <FieldGroup>
