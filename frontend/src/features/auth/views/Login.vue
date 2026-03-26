@@ -78,7 +78,7 @@ const isInvalid = (field: any) => field.state.meta.isTouched && !field.state.met
             <form.Field name="email">
               <template v-slot="{ field }">
                 <Field :data-invalid="isInvalid(field)">
-                  <FieldLabel :for="Field.name">Email</FieldLabel>
+                  <FieldLabel :for="field.name">Email</FieldLabel>
                   <InputGroup>
                     <InputGroupInput
                       :id="field.name"

@@ -24,9 +24,7 @@ class UpdateCategoryRequest extends FormRequest
     {
         return [
             'name'  => 'sometimes|string|max:255',
-            'icon'  => 'nullable|string',
-            'color' => 'nullable|string|max:7',
-            'is_default' => 'nullable|bool'
+            'icon'  => 'nullable|string'
         ];
     }
 }

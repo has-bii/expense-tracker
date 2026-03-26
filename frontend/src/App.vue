@@ -2,6 +2,9 @@
 import { RouterView } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 import { Loader2 } from 'lucide-vue-next'
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
+import { Toaster } from './components/ui/sonner'
+import 'vue-sonner/style.css'
 
 const auth = useAuthStore()
 </script>
@@ -15,7 +18,11 @@ const auth = useAuthStore()
     <p class="text-lg font-medium">Loading...</p>
   </div>
 
-  <RouterView />
+  <main>
+    <RouterView />
+  </main>
+  <VueQueryDevtools />
+  <Toaster rich-colors theme="light" position="top-center" />
 </template>
 
 <style scoped></style>
