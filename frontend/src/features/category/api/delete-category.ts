@@ -2,15 +2,13 @@ import type { Response } from '@/types/response'
 import type { Category } from '../types'
 import api from '@/lib/api'
 import { parseAxiosError } from '@/utils/parse-axios-error'
-import { createCategorySchema, type CreateCategoryDto } from '../validations/create-category'
-import { useForm } from '@tanstack/vue-form'
 import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import { getCategoriesQueryKey } from './get-categories'
 
-const createCategory = async (input: CreateCategoryDto): Promise<Response<Category>> => {
+const deleteCategory = async (id: string): Promise<Response<Category>> => {
   try {
-    const { data: responseData } = await api.post<Response<Category>>('/category', input)
+    const { data: responseData } = await api.delete<Response<Category>>(`/category/${id}`)
 
     if (!responseData.success) {
       throw new Error(responseData.message)
@@ -25,40 +23,21 @@ const createCategory = async (input: CreateCategoryDto): Promise<Response<Catego
   }
 }
 
-type UseCreateCategoryFormOption = {
-  onSuccess?: () => void
-}
-
-export const useCreateCategoryForm = ({ onSuccess }: UseCreateCategoryFormOption = {}) => {
-  const form = useForm({
-    defaultValues: {
-      name: '',
-      icon: '🍔',
-    },
-    validators: {
-      onSubmit: createCategorySchema,
-    },
-    onSubmit: async ({ value }) => {
-      mutation.mutate(value, {
-        onSuccess,
-      })
-    },
-  })
-
+export const useDeleteCategoryMutation = () => {
   const mutation = useMutation({
-    mutationFn: createCategory,
+    mutationFn: deleteCategory,
     onError: (error) => {
       toast.error(error.message)
     },
     onSuccess: async (responseData, _v, _r, context) => {
       toast.success(responseData.message)
       await context.client.invalidateQueries({
-        exact: true,
         queryKey: getCategoriesQueryKey(),
+        exact: true,
       })
-      form.reset()
     },
+    onMutate: () => {},
   })
 
-  return { form, mutation }
+  return mutation
 }

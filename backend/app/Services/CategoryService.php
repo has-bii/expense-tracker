@@ -33,8 +33,8 @@ class CategoryService
         return $this->categoryRepository->update($userId, $id, $data);
     }
 
-    public function delete(string $userId, string $id): void
+    public function delete(string $userId, string $id): Category
     {
-        $this->categoryRepository->delete($userId, $id);
+        return $this->categoryRepository->delete($userId, $id);
     }
 }

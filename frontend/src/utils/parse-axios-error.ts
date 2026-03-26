@@ -1,4 +1,3 @@
-import type { ResponseError } from '@/types/response'
 import { isAxiosError } from 'axios'
 
 interface ParsedError {
@@ -7,7 +6,7 @@ interface ParsedError {
 }
 
 export const parseAxiosError = (error: unknown): ParsedError => {
-  if (!isAxiosError<ResponseError>(error)) {
+  if (!isAxiosError(error)) {
     return {
       message: 'An unexpected error occurred',
       status: null,

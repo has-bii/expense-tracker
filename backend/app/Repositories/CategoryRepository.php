@@ -29,8 +29,10 @@ class CategoryRepository
         return $category;
     }
 
-    public function delete(string $userId, string $id): void
+    public function delete(string $userId, string $id): Category
     {
-        $this->findById($userId, $id)->delete();
+        $category = $this->findById($userId, $id);
+        $category->delete();
+        return $category;
     }
 }

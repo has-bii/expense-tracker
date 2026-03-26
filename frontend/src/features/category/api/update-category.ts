@@ -2,15 +2,21 @@ import type { Response } from '@/types/response'
 import type { Category } from '../types'
 import api from '@/lib/api'
 import { parseAxiosError } from '@/utils/parse-axios-error'
-import { createCategorySchema, type CreateCategoryDto } from '../validations/create-category'
 import { useForm } from '@tanstack/vue-form'
 import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import { getCategoriesQueryKey } from './get-categories'
+import { updateCategorySchema, type UpdateCategoryDto } from '../validations/update-category'
+import { computed, reactive, type Ref } from 'vue'
 
-const createCategory = async (input: CreateCategoryDto): Promise<Response<Category>> => {
+interface UpdateCategoryArgs {
+  id: string
+  input: UpdateCategoryDto
+}
+
+const updateCategory = async ({ id, input }: UpdateCategoryArgs): Promise<Response<Category>> => {
   try {
-    const { data: responseData } = await api.post<Response<Category>>('/category', input)
+    const { data: responseData } = await api.put<Response<Category>>(`/category/${id}`, input)
 
     if (!responseData.success) {
       throw new Error(responseData.message)
@@ -25,28 +31,38 @@ const createCategory = async (input: CreateCategoryDto): Promise<Response<Catego
   }
 }
 
-type UseCreateCategoryFormOption = {
-  onSuccess?: () => void
+interface UseUpdateCategoryFormArgs {
+  data: Ref<Category | null>
+  onSuccess: () => void
 }
 
-export const useCreateCategoryForm = ({ onSuccess }: UseCreateCategoryFormOption = {}) => {
+export const useUpdateCategoryForm = ({ data, onSuccess }: UseUpdateCategoryFormArgs) => {
+  const name = computed(() => data.value?.name ?? '')
+  const icon = computed(() => data.value?.icon ?? '🍔')
+
+  const defaultValues = reactive({
+    name,
+    icon,
+  })
+
   const form = useForm({
-    defaultValues: {
-      name: '',
-      icon: '🍔',
-    },
+    defaultValues,
     validators: {
-      onSubmit: createCategorySchema,
+      onSubmit: updateCategorySchema,
     },
     onSubmit: async ({ value }) => {
-      mutation.mutate(value, {
-        onSuccess,
-      })
+      if (!data.value) return
+      mutation.mutate(
+        { id: data.value.id, input: value },
+        {
+          onSuccess,
+        },
+      )
     },
   })
 
   const mutation = useMutation({
-    mutationFn: createCategory,
+    mutationFn: updateCategory,
     onError: (error) => {
       toast.error(error.message)
     },
@@ -56,7 +72,6 @@ export const useCreateCategoryForm = ({ onSuccess }: UseCreateCategoryFormOption
         exact: true,
         queryKey: getCategoriesQueryKey(),
       })
-      form.reset()
     },
   })
 
