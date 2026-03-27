@@ -5,6 +5,7 @@
     "": {
       "name": "frontend",
       "dependencies": {
+        "@internationalized/date": "^3.12.0",
         "@tanstack/vue-form": "^1.28.5",
         "@tanstack/vue-query": "^5.95.2",
         "@tanstack/vue-query-devtools": "^6.1.10",

@@ -18,7 +18,7 @@ const props = defineProps<{
     <CardHeader>
       <div class="flex items-center justify-between">
         <CardTitle>{{ data.icon }} {{ data.name }}</CardTitle>
-        <Button size="icon" variant="destructive" @click.stop="() => props.delete(data)">
+        <Button size="icon-sm" variant="destructive" @click.stop="() => props.delete(data)">
           <Trash2 />
         </Button>
       </div>

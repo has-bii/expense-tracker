@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,4 +19,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/category', [CategoryController::class, 'store']);
     Route::put('/category/{id}', [CategoryController::class, 'update']);
     Route::delete('/category/{id}', [CategoryController::class, 'delete']);
+
+    // Budget
+    Route::get('/budget', [BudgetController::class, 'index']);
+    Route::get('/budget/{id}', [BudgetController::class, 'detail']);
+    Route::post('/budget', [BudgetController::class, 'create']);
+    Route::put('/budget/{id}', [BudgetController::class, 'update']);
+    Route::delete('/budget/{id}', [BudgetController::class, 'delete']);
 });

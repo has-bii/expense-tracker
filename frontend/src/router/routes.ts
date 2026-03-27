@@ -34,6 +34,10 @@ export const routes: RouteRecordRaw[] = [
         path: 'category',
         component: () => import('@/features/category/views/CategoryList.vue'),
       },
+      {
+        path: 'budget',
+        component: () => import('@/features/budget/views/BudgetList.vue'),
+      },
     ],
   },
   {
