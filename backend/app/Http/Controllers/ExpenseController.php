@@ -46,7 +46,7 @@ class ExpenseController extends Controller
             'success' => true,
             'message' => $data['name'] . ' has been added successfully',
             'data'    => $data
-        ]);
+        ], 201);
     }
 
     public function update(UpdateExpenseRequest $request, string $id): JsonResponse
@@ -59,7 +59,7 @@ class ExpenseController extends Controller
             'success' => true,
             'message' => $data['name'] . ' has been updated successfully',
             'data'    => $data
-        ]);
+        ], 201);
     }
 
     public function delete(Request $request, string $id): JsonResponse
