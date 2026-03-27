@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\IncomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -26,4 +28,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/budget', [BudgetController::class, 'create']);
     Route::put('/budget/{id}', [BudgetController::class, 'update']);
     Route::delete('/budget/{id}', [BudgetController::class, 'delete']);
+
+    // Income
+    Route::get('/income', [IncomeController::class, 'index']);
+    Route::get('/income/{id}', [IncomeController::class, 'detail']);
+    Route::post('/income', [IncomeController::class, 'create']);
+    Route::put('/income/{id}', [IncomeController::class, 'update']);
+    Route::delete('/income/{id}', [IncomeController::class, 'delete']);
+
+    // Expense
+    Route::get('/expense', [ExpenseController::class, 'index']);
+    Route::get('/expense/{id}', [ExpenseController::class, 'detail']);
+    Route::post('/expense', [ExpenseController::class, 'create']);
+    Route::put('/expense/{id}', [ExpenseController::class, 'update']);
+    Route::delete('/expense/{id}', [ExpenseController::class, 'delete']);
 });

@@ -6,6 +6,7 @@ use App\Enums\Period;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rule;
 
 class UpdateBudgetRequest extends FormRequest
 {
@@ -25,10 +26,21 @@ class UpdateBudgetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => ['required', 'uuid'],
+            'category_id' => [
+                'required',
+                'uuid',
+                Rule::unique('budgets')->where('user_id', $this->user()->id)->ignore($this->route('budget'))
+            ],
             'limit_amount' => ['required', 'decimal:0,2'],
             'period' => ['required', new Enum(Period::class)],
             'start_date' => ['required', 'date']
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'category_id.unique' => 'You already have a budget set for this category.',
         ];
     }
 }

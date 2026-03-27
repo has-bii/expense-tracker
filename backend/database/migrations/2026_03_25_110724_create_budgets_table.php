@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::create('budgets', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignUuid('category_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->foreignUuid('category_id')->constrained('categories')->cascadeOnDelete();
             $table->decimal('limit_amount', 12, 2);
             $table->string('period');
             $table->date('start_date');
             $table->timestamps();
+
+            $table->unique(['user_id', 'category_id']);
         });
     }
 

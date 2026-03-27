@@ -9,5 +9,5 @@ class Income extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['amount', 'source', 'description', 'income_date'];
+    protected $fillable = ['user_id', 'amount', 'source', 'description', 'income_date'];
 }

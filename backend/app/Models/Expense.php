@@ -9,5 +9,10 @@ class Expense extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['category_id', 'amount', 'description', 'expense_date'];
+    protected $fillable = ['user_id', 'category_id', 'amount', 'description', 'expense_date'];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }
