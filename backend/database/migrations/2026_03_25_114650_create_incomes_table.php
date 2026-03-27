@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('incomes', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
-            $table->decimal('amount');
+            $table->decimal('amount', 12, 2);
             $table->string('source');
             $table->string('description')->nullable();
             $table->dateTime('income_date');
