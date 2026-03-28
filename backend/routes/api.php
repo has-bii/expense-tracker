@@ -24,21 +24,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Budget
     Route::get('/budget', [BudgetController::class, 'index']);
-    Route::get('/budget/{id}', [BudgetController::class, 'detail']);
     Route::post('/budget', [BudgetController::class, 'create']);
     Route::put('/budget/{id}', [BudgetController::class, 'update']);
     Route::delete('/budget/{id}', [BudgetController::class, 'delete']);
 
     // Income
     Route::get('/income', [IncomeController::class, 'index']);
-    Route::get('/income/{id}', [IncomeController::class, 'detail']);
     Route::post('/income', [IncomeController::class, 'create']);
     Route::put('/income/{id}', [IncomeController::class, 'update']);
     Route::delete('/income/{id}', [IncomeController::class, 'delete']);
 
     // Expense
     Route::get('/expense', [ExpenseController::class, 'index']);
-    Route::get('/expense/{id}', [ExpenseController::class, 'detail']);
     Route::post('/expense', [ExpenseController::class, 'create']);
     Route::put('/expense/{id}', [ExpenseController::class, 'update']);
     Route::delete('/expense/{id}', [ExpenseController::class, 'delete']);

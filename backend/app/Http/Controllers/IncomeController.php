@@ -29,17 +29,6 @@ class IncomeController extends Controller
         ]);
     }
 
-    public function detail(Request $request, string $id): JsonResponse
-    {
-        $data = $this->service->getById($request->user()->id, $id);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'ok',
-            'data' => $data
-        ]);
-    }
-
     public function create(CreateIncomeRequest $request): JsonResponse
     {
         $input = $request->validated();
