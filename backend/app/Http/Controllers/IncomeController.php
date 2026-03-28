@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateIncomeRequest;
 use App\Services\IncomeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class IncomeController extends Controller
 {
@@ -20,7 +21,18 @@ class IncomeController extends Controller
         // Query
         $queries = QueryPagination::getQueries($request);
 
-        $data = $this->service->getAll($request->user()->id, $queries);
+        // Filter
+        $filters = Validator::make($request->query(), [
+            'income_date_from' => ['nullable', 'date'],
+            'income_date_to' => ['nullable', 'date'],
+            'source' => ['nullable', 'string'],
+            'amount_from' => ['nullable', 'decimal:0,2', 'min:0'],
+            'amount_to' => ['nullable', 'decimal:0,2', 'min:0'],
+        ]);
+
+        $queries_filters = array_merge($queries, $filters->fails() ? [] : $filters->validate());
+
+        $data = $this->service->getAll($request->user()->id, $queries_filters);
 
         return response()->json([
             'success' => true,

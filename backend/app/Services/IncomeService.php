@@ -10,14 +10,18 @@ class IncomeService
     public function getAll(string $userId, array $queries): CursorPaginator
     {
         $data = Income::where('user_id', $userId)
-            ->orderBy($queries['sort_by'], $queries['order'])
-            ->cursorPaginate(
-                perPage: $queries['limit'],
-                columns: ['id', 'amount', 'source', 'description', 'income_date', 'created_at'],
-                cursor: $queries['cursor']
-            );
+            ->when(isset($queries['income_date_from']), fn ($q) => $q->where('income_date', '>=', $queries['income_date_from']))
+            ->when(isset($queries['income_date_to']), fn ($q) => $q->where('income_date', '<=', $queries['income_date_to']))
+            ->when(isset($queries['source']), fn ($q) => $q->where('source', 'like', '%' . $queries['source'] . '%'))
+            ->when(isset($queries['amount_from']), fn ($q) => $q->where('amount', '>=', $queries['amount_from']))
+            ->when(isset($queries['amount_to']), fn ($q) => $q->where('amount', '<=', $queries['amount_to']))
+            ->orderBy($queries['sort_by'], $queries['order']);
 
-        return $data;
+        return $data->cursorPaginate(
+            perPage: $queries['limit'],
+            columns: ['id', 'amount', 'source', 'description', 'income_date', 'created_at'],
+            cursor: $queries['cursor']
+        );
     }
 
     public function getById(string $userId, string $id): Income
