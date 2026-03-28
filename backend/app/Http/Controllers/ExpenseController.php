@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\QueryPagination;
 use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Services\ExpenseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ExpenseController extends Controller
 {
@@ -16,18 +18,21 @@ class ExpenseController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $data = $this->service->getAll($request->user()->id);
+        // Query
+        $queries = QueryPagination::getQueries($request);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'ok',
-            'data' => $data
+        // Filter
+        $filters = Validator::make($request->query(), [
+            'expense_date_from' => ['nullable', 'date'],
+            'expense_date_to' => ['nullable', 'date'],
+            'category' => ['nullable', 'uuid', 'exists:categories,id'],
+            'amount_from' => ['nullable', 'decimal:0,2', 'min:0'],
+            'amount_to' => ['nullable', 'decimal:0,2', 'min:0'],
         ]);
-    }
 
-    public function detail(Request $request, string $id): JsonResponse
-    {
-        $data = $this->service->getById($request->user()->id, $id);
+        $queries_filters = array_merge($queries, $filters->fails() ? [] : $filters->validate());
+
+        $data = $this->service->getAll($request->user()->id, $queries_filters);
 
         return response()->json([
             'success' => true,
