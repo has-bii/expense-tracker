@@ -8,6 +8,8 @@ import type { Income } from '../types'
 type QueryInput = {
   limit: number
   cursor?: string
+  sort_by?: string
+  order?: string
 }
 
 const getIncomes = async (query: QueryInput): Promise<Pagination<Income[]>> => {

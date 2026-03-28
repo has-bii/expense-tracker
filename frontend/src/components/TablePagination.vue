@@ -5,6 +5,7 @@ import { Button } from './ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 import type { AcceptableValue } from 'reka-ui'
 import { useRoute, useRouter } from 'vue-router'
+import { computed } from 'vue'
 
 const LIMIT = [10, 25, 50, 100]
 
@@ -15,12 +16,7 @@ defineProps<{
 const router = useRouter()
 const route = useRoute()
 
-const query = defineModel<{ limit: number; cursor?: string }>('query', {
-  default: {
-    limit: 10,
-    cursor: undefined,
-  },
-})
+const limit = computed(() => Number(route.query.limit) || 10)
 
 const updateLimit = (newLimit: AcceptableValue) => {
   router.push({
@@ -44,7 +40,7 @@ const updateCursor = (value: string | null) => {
 
 <template>
   <div class="flex items-center justify-between px-6 mt-4">
-    <Select :model-value="query.limit.toString()" @update:model-value="updateLimit">
+    <Select :model-value="limit.toString()" @update:model-value="updateLimit">
       <SelectTrigger class="w-[120px]">
         <SelectValue placeholder="Select a limit" />
       </SelectTrigger>

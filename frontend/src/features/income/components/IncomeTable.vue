@@ -17,19 +17,26 @@ import { currencyFormatter } from '@/utils/currency'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash2 } from 'lucide-vue-next'
-import { useRoute } from 'vue-router'
+import { useQueryPagination } from '@/hooks/use-query-pagination'
 import IncomeUpsertDialog from './IncomeUpsertDialog.vue'
 import IncomeDeleteDialog from './IncomeDeleteDialog.vue'
 import { useIncomeDelete } from '../hooks/use-income-delete'
 import type { Income } from '../types'
 import { ref } from 'vue'
+import { useQuerySort } from '@/hooks/use-query-sort'
+import TableHeadWithSort from '@/components/TableHeadWithSort.vue'
 
-const route = useRoute()
+const { sorts, updateSort } = useQuerySort()
+const { pagination } = useQueryPagination()
 
-const selectedIncome = ref<Pick<Income, 'id' | 'amount' | 'source' | 'description' | 'income_date'> | undefined>()
+const selectedIncome = ref<
+  Pick<Income, 'id' | 'amount' | 'source' | 'description' | 'income_date'> | undefined
+>()
 const isEditOpen = ref(false)
 
-const openEdit = (income: Pick<Income, 'id' | 'amount' | 'source' | 'description' | 'income_date'>) => {
+const openEdit = (
+  income: Pick<Income, 'id' | 'amount' | 'source' | 'description' | 'income_date'>,
+) => {
   selectedIncome.value = income
   isEditOpen.value = true
 }
@@ -43,12 +50,10 @@ const onEditOpenChange = (val: boolean) => {
 
 const incomeDelete = useIncomeDelete()
 
-const query = computed(() => ({
-  limit: Number(route.query.limit) || 10,
-  cursor: route.query.cursor as string | undefined,
-}))
-
-const { data } = useQuery(computed(() => ({ ...getIncomesQueryOption(query.value) })))
+const queryOpts = computed(() =>
+  getIncomesQueryOption({ ...pagination.value, ...sorts.value }),
+)
+const { data } = useQuery(queryOpts)
 </script>
 
 <template>
@@ -61,10 +66,22 @@ const { data } = useQuery(computed(() => ({ ...getIncomesQueryOption(query.value
     <CardContent class="px-0">
       <Table class="w-full border-y">
         <TableHeader class="bg-accent">
-          <TableRow class="uppercase">
+          <TableRow>
             <TableHead class="font-semibold">source & description</TableHead>
-            <TableHead class="font-semibold text-center">date</TableHead>
-            <TableHead class="font-semibold text-right">amount</TableHead>
+            <TableHeadWithSort
+              @sort="updateSort"
+              sort_by="income_date"
+              :sorts="sorts"
+              class="font-semibold text-center"
+              >date</TableHeadWithSort
+            >
+            <TableHeadWithSort
+              @sort="updateSort"
+              sort_by="amount"
+              :sorts="sorts"
+              class="font-semibold text-right"
+              >amount</TableHeadWithSort
+            >
             <TableHead><span class="sr-only">action</span></TableHead>
           </TableRow>
         </TableHeader>
@@ -114,7 +131,7 @@ const { data } = useQuery(computed(() => ({ ...getIncomesQueryOption(query.value
         </TableBody>
       </Table>
       <template v-if="data">
-        <TablePagination :pagination="data" v-model:query="query" />
+        <TablePagination :pagination="data" />
       </template>
     </CardContent>
   </Card>
