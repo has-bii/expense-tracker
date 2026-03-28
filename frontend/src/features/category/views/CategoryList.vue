@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { useBreadcrumbStore } from '@/stores/breadcrumb'
-import { onBeforeMount } from 'vue'
-import CategoryCreateDialog from '../components/CategoryCreateDialog.vue'
+import { onBeforeMount, ref } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { getCategoriesQueryOption } from '../api/get-categories'
 import CategoryCard from '../components/CategoryCard.vue'
 import CategoryCardSkeleton from '../components/CategoryCardSkeleton.vue'
-import { useCategoryUpdate } from '../hooks/use-category-update'
+import CategoryUpsertDialog from '../components/CategoryUpsertDialog.vue'
 import CategoryDeleteDialog from '../components/CategoryDeleteDialog.vue'
 import { useCategoryDelete } from '../hooks/use-category-delete'
-import CategoryUpdateDialog from '../components/CategoryUpdateDialog.vue'
+import type { Category } from '../types'
 
 const breadcrumb = useBreadcrumbStore()
 onBeforeMount(() => {
@@ -18,14 +17,30 @@ onBeforeMount(() => {
 
 const { data = [], isLoading } = useQuery({ ...getCategoriesQueryOption() })
 
-const categoryUpdate = useCategoryUpdate()
+// Update dialog state
+const selectedCategory = ref<Pick<Category, 'id' | 'name' | 'icon'> | undefined>()
+const isEditOpen = ref(false)
+
+const openEdit = (category: Category) => {
+  selectedCategory.value = category
+  isEditOpen.value = true
+}
+
+const onEditOpenChange = (val: boolean) => {
+  isEditOpen.value = val
+  if (!val) {
+    selectedCategory.value = undefined
+  }
+}
+
+// Delete dialog (kept as-is)
 const categoryDelete = useCategoryDelete()
 </script>
 
 <template>
   <div class="flex items-center justify-between">
     <h1 class="text-2xl font-bold">Category</h1>
-    <CategoryCreateDialog />
+    <CategoryUpsertDialog />
   </div>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
     <CategoryCard
@@ -33,7 +48,7 @@ const categoryDelete = useCategoryDelete()
       :key="category.id"
       :data="category"
       :delete="categoryDelete.select"
-      :update="categoryUpdate.select"
+      :update="openEdit"
     />
     <CategoryCardSkeleton v-if="isLoading" />
   </div>
@@ -43,9 +58,10 @@ const categoryDelete = useCategoryDelete()
     :category="categoryDelete.category"
     :close="categoryDelete.close"
   />
-  <CategoryUpdateDialog
-    :is-open="categoryUpdate.isOpen"
-    :category="categoryUpdate.category"
-    :close="categoryUpdate.close"
+  <CategoryUpsertDialog
+    type="update"
+    :old-value="selectedCategory"
+    :open="isEditOpen"
+    @update:open="onEditOpenChange"
   />
 </template>

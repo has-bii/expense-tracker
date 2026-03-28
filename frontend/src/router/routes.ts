@@ -38,6 +38,10 @@ export const routes: RouteRecordRaw[] = [
         path: 'budget',
         component: () => import('@/features/budget/views/BudgetList.vue'),
       },
+      {
+        path: 'income',
+        component: () => import('@/features/income/views/IncomeOverview.vue'),
+      },
     ],
   },
   {

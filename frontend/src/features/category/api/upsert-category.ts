@@ -2,15 +2,29 @@ import type { Response } from '@/types/response'
 import type { Category } from '../types'
 import api from '@/lib/api'
 import { parseAxiosError } from '@/utils/parse-axios-error'
-import { createCategorySchema, type CreateCategoryDto } from '../validations/create-category'
 import { useForm } from '@tanstack/vue-form'
 import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import { getCategoriesQueryKey } from './get-categories'
+import { createCategorySchema, type CreateCategoryDto } from '../validations/create-category'
+import { computed, reactive, type Ref, toValue } from 'vue'
 
-const createCategory = async (input: CreateCategoryDto): Promise<Response<Category>> => {
+type UpsertApi = {
+  input: CreateCategoryDto
+  id?: string
+}
+
+const upsertCategory = async ({ input, id }: UpsertApi): Promise<Response<Category>> => {
   try {
-    const { data: responseData } = await api.post<Response<Category>>('/category', input)
+    let responseData: null | Response<Category> = null
+
+    if (id) {
+      const { data } = await api.put<Response<Category>>(`/category/${id}`, input)
+      responseData = data
+    } else {
+      const { data } = await api.post<Response<Category>>('/category', input)
+      responseData = data
+    }
 
     if (!responseData.success) {
       throw new Error(responseData.message)
@@ -25,16 +39,25 @@ const createCategory = async (input: CreateCategoryDto): Promise<Response<Catego
   }
 }
 
-type UseCreateCategoryFormOption = {
+type OldValue = Pick<Category, 'id' | 'name' | 'icon'>
+
+type Args = {
   onSuccess?: () => void
+  oldValue?: Ref<OldValue | undefined> | OldValue
 }
 
-export const useCreateCategoryForm = ({ onSuccess }: UseCreateCategoryFormOption = {}) => {
+export const useUpsertCategoryForm = ({ onSuccess, oldValue }: Args) => {
+  const id = computed(() => toValue(oldValue)?.id)
+  const name = computed(() => toValue(oldValue)?.name ?? '')
+  const icon = computed(() => toValue(oldValue)?.icon ?? '🍔')
+
+  const defaultValues = reactive({
+    name,
+    icon,
+  })
+
   const form = useForm({
-    defaultValues: {
-      name: '',
-      icon: '🍔',
-    },
+    defaultValues,
     validators: {
       onSubmit: createCategorySchema,
     },
@@ -46,7 +69,7 @@ export const useCreateCategoryForm = ({ onSuccess }: UseCreateCategoryFormOption
   })
 
   const mutation = useMutation({
-    mutationFn: createCategory,
+    mutationFn: (input: CreateCategoryDto) => upsertCategory({ input, id: id.value }),
     onError: (error) => {
       toast.error(error.message)
     },

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\QueryPagination;
 use App\Http\Requests\CreateIncomeRequest;
 use App\Http\Requests\UpdateIncomeRequest;
 use App\Services\IncomeService;
@@ -16,7 +17,10 @@ class IncomeController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $data = $this->service->getAll($request->user()->id);
+        // Query
+        $queries = QueryPagination::getQueries($request);
+
+        $data = $this->service->getAll($request->user()->id, $queries);
 
         return response()->json([
             'success' => true,

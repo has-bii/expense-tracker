@@ -8,24 +8,51 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Loader2, Plus } from 'lucide-vue-next'
-import { useCreateCategoryForm } from '../api/create-category'
+import { Check, Loader2, Plus } from 'lucide-vue-next'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 
 import 'vue3-emoji-picker/css'
 import EmojiPickerInput from '@/components/EmojiPickerInput.vue'
-import { ref } from 'vue'
+import { computed, ref, toRef } from 'vue'
+import { useUpsertCategoryForm } from '../api/upsert-category'
+import type { Category } from '../types'
 
-const isOpen = ref(false)
-const toggleOpen = () => {
-  isOpen.value = !isOpen.value
-}
+// Props
+const props = withDefaults(
+  defineProps<{
+    oldValue?: Pick<Category, 'id' | 'name' | 'icon'>
+    type?: 'create' | 'update'
+    open?: boolean
+  }>(),
+  { type: 'create' },
+)
 
-const { form, mutation } = useCreateCategoryForm({
+const emit = defineEmits<{
+  'update:open': [value: boolean]
+}>()
+
+const isUpdate = computed(() => props.type === 'update')
+
+// Dialog state
+const internalOpen = ref(false)
+const isOpen = computed({
+  get: () => (isUpdate.value ? props.open ?? false : internalOpen.value),
+  set: (val) => {
+    if (isUpdate.value) {
+      emit('update:open', val)
+    } else {
+      internalOpen.value = val
+    }
+  },
+})
+
+// Form state
+const { form, mutation } = useUpsertCategoryForm({
   onSuccess: () => {
     isOpen.value = false
   },
+  oldValue: toRef(() => props.oldValue),
 })
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,14 +62,16 @@ const { isPending } = mutation
 </script>
 
 <template>
-  <Dialog :open="isOpen" @update:open="toggleOpen">
-    <DialogTrigger as-child>
+  <Dialog v-model:open="isOpen">
+    <DialogTrigger v-if="!isUpdate" as-child>
       <Button size="sm">Add Category <Plus /></Button>
     </DialogTrigger>
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Add new category</DialogTitle>
-        <DialogDescription> To create a new category, enter name and icon </DialogDescription>
+        <DialogTitle>{{ isUpdate ? 'Update category' : 'Add new category' }}</DialogTitle>
+        <DialogDescription>
+          {{ isUpdate ? 'Change name or icon to update category' : 'To create a new category, enter name and icon' }}
+        </DialogDescription>
       </DialogHeader>
       <form @submit.prevent="form.handleSubmit">
         <FieldGroup>
@@ -86,8 +115,9 @@ const { isPending } = mutation
             <template v-slot="{ canSubmit }">
               <Field>
                 <Button :disabled="!canSubmit || isPending">
-                  Add
+                  {{ isUpdate ? 'Update' : 'Add' }}
                   <Loader2 v-if="isPending" class="animate-spin" />
+                  <Check v-else-if="isUpdate" />
                   <Plus v-else />
                 </Button>
               </Field>

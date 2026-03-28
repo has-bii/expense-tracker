@@ -164,9 +164,7 @@ const { data: categories = [] } = useQuery({ ...getCategoriesQueryOption() })
                       :initial-focus="true"
                       layout="month-and-year"
                       @update:model-value="
-                        (value) => {
-                          field.handleChange(value?.toString() as string)
-                        }
+                        (value) => field.handleChange(new Date(value!.toString()))
                       "
                     />
                   </PopoverContent>

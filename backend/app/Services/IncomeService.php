@@ -4,12 +4,19 @@ namespace App\Services;
 
 use App\Models\Income;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\CursorPaginator;
 
 class IncomeService
 {
-    public function getAll(string $userId): Collection
+    public function getAll(string $userId, array $queries): CursorPaginator
     {
-        $data = Income::where('user_id', $userId)->get();
+        $data = Income::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->cursorPaginate(
+                perPage: $queries['limit'],
+                columns: ['id', 'amount', 'source', 'description', 'income_date', 'created_at'],
+                cursor: $queries['cursor']
+            );
 
         return $data;
     }

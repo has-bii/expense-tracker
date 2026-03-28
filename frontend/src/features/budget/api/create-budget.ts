@@ -36,7 +36,7 @@ export const useCreateBudgetForm = ({ onSuccess }: Args = {}) => {
       category_id: '',
       limit_amount: 0,
       period: 'monthly' as Period,
-      start_date: format(new Date(), 'y-MM-dd'),
+      start_date: new Date(),
     },
     validators: {
       onSubmit: createBudgetSchema,

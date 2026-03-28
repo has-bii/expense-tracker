@@ -22,3 +22,9 @@ export type Response<T = null> = {
       data: null
     }
 )
+
+export interface Pagination<T> {
+  data: T
+  next_cursor: string | null
+  prev_cursor: string | null
+}
