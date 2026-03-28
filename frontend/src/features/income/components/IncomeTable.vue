@@ -25,6 +25,16 @@ import type { Income } from '../types'
 import { ref } from 'vue'
 import { useQuerySort } from '@/hooks/use-query-sort'
 import TableHeadWithSort from '@/components/TableHeadWithSort.vue'
+import IncomeTableFilters from './IncomeTableFilters.vue'
+import { useRoute } from 'vue-router'
+
+// Filters
+const route = useRoute()
+const source = computed(() => route.query.source as string | undefined)
+const amount_from = computed(() => route.query.amount_from as string | undefined)
+const amount_to = computed(() => route.query.amount_to as string | undefined)
+const income_date_from = computed(() => route.query.income_date_from as string | undefined)
+const income_date_to = computed(() => route.query.income_date_to as string | undefined)
 
 const { sorts, updateSort } = useQuerySort()
 const { pagination } = useQueryPagination()
@@ -51,7 +61,15 @@ const onEditOpenChange = (val: boolean) => {
 const incomeDelete = useIncomeDelete()
 
 const queryOpts = computed(() =>
-  getIncomesQueryOption({ ...pagination.value, ...sorts.value }),
+  getIncomesQueryOption({
+    ...pagination.value,
+    ...sorts.value,
+    source: source.value,
+    amount_from: amount_from.value,
+    amount_to: amount_to.value,
+    income_date_from: income_date_from.value,
+    income_date_to: income_date_to.value,
+  }),
 )
 const { data } = useQuery(queryOpts)
 </script>
@@ -61,6 +79,8 @@ const { data } = useQuery(queryOpts)
     <CardHeader>
       <div class="flex items-center justify-between">
         <CardTitle>Recent Records</CardTitle>
+
+        <IncomeTableFilters />
       </div>
     </CardHeader>
     <CardContent class="px-0">

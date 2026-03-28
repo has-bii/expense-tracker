@@ -10,6 +10,11 @@ type QueryInput = {
   cursor?: string
   sort_by?: string
   order?: string
+  source?: string
+  amount_from?: string
+  amount_to?: string
+  income_date_from?: string
+  income_date_to?: string
 }
 
 const getIncomes = async (query: QueryInput): Promise<Pagination<Income[]>> => {
