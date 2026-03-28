@@ -45,7 +45,7 @@ const categoryDelete = useCategoryDelete()
   </div>
   <!-- Empty state -->
   <div
-    v-if="!isLoading && data.length === 0"
+    v-if="!isLoading && data?.length === 0"
     class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-primary/40 bg-card/50 px-6 py-16 text-center animate-in fade-in-0 slide-in-from-bottom-4 duration-500"
   >
     <div class="relative mb-6">
