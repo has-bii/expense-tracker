@@ -16,11 +16,10 @@ return new class extends Migration
             $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignUuid('category_id')->constrained('categories')->cascadeOnDelete();
             $table->decimal('limit_amount', 12, 2);
-            $table->string('period');
-            $table->date('start_date');
+            $table->enum('period', ['daily', 'weekly', 'monthly']);
             $table->timestamps();
 
-            $table->unique(['user_id', 'category_id']);
+            $table->unique(['user_id', 'category_id', 'period']);
         });
     }
 

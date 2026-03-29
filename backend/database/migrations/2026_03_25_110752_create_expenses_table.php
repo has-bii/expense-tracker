@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->dateTime('expense_date');
             $table->timestamps();
+
+            $table->index('expense_date');
         });
     }
 

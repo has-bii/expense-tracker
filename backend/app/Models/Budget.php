@@ -10,7 +10,12 @@ class Budget extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['user_id', 'category_id', 'limit_amount', 'period', 'start_date'];
+    protected $fillable = ['user_id', 'category_id', 'limit_amount', 'period'];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function category(): BelongsTo
     {

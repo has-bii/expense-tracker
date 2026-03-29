@@ -49,7 +49,7 @@ class ExpenseController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $data['name'] . ' has been added successfully',
+            'message' => 'Expense has been added successfully',
             'data'    => $data
         ], 201);
     }
@@ -62,9 +62,9 @@ class ExpenseController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $data['name'] . ' has been updated successfully',
+            'message' => 'Expense has been updated successfully',
             'data'    => $data
-        ], 201);
+        ]);
     }
 
     public function delete(Request $request, string $id): JsonResponse
@@ -73,7 +73,7 @@ class ExpenseController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $data['name'] . ' has been deleted successfully',
+            'message' => 'Expense has been deleted successfully',
             'data' => $data
         ]);
     }

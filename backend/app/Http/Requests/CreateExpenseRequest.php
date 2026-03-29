@@ -23,7 +23,7 @@ class CreateExpenseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => ['required', 'uuid'],
+            'category_id' => ['required', 'uuid', 'exists:categories,id'],
             'amount' => ['required', 'decimal:0,2'],
             'description' => ['string', 'nullable'],
             'expense_date' => ['required', 'date']

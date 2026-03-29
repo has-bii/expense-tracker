@@ -33,7 +33,7 @@ class BudgetController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $data['name'] . ' has been added successfully',
+            'message' => $data->category->name . ' budget has been added successfully',
             'data'    => $data
         ]);
     }
@@ -46,7 +46,7 @@ class BudgetController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $data['name'] . ' has been updated successfully',
+            'message' => $data->category->name . ' budget has been updated successfully',
             'data'    => $data
         ]);
     }
@@ -57,7 +57,7 @@ class BudgetController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $data['name'] . ' has been deleted successfully',
+            'message' => $data->category->name . ' budget has been deleted successfully',
             'data' => $data
         ]);
     }

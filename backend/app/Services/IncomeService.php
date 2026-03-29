@@ -12,7 +12,10 @@ class IncomeService
         $data = Income::where('user_id', $userId)
             ->when(isset($queries['income_date_from']), fn($q) => $q->where('income_date', '>=', $queries['income_date_from']))
             ->when(isset($queries['income_date_to']), fn($q) => $q->where('income_date', '<=', $queries['income_date_to']))
-            ->when(isset($queries['source']), fn($q) => $q->where('source', 'ilike', '%' . $queries['source'] . '%'))
+            ->when(isset($queries['source']), function ($q) use ($queries) {
+                $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $queries['source']);
+                return $q->where('source', 'ilike', '%' . $escaped . '%');
+            })
             ->when(isset($queries['amount_from']), fn($q) => $q->where('amount', '>=', $queries['amount_from']))
             ->when(isset($queries['amount_to']), fn($q) => $q->where('amount', '<=', $queries['amount_to']))
             ->orderBy($queries['sort_by'], $queries['order']);

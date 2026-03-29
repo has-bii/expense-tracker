@@ -29,11 +29,11 @@ class UpdateBudgetRequest extends FormRequest
             'category_id' => [
                 'required',
                 'uuid',
-                Rule::unique('budgets')->where('user_id', $this->user()->id)->ignore($this->route('budget'))
+                'exists:categories,id',
+                Rule::unique('budgets')->where('user_id', $this->user()->id)->where('period', $this->input('period'))->ignore($this->route('id'))
             ],
             'limit_amount' => ['required', 'decimal:0,2'],
-            'period' => ['required', new Enum(Period::class)],
-            'start_date' => ['required', 'date']
+            'period' => ['required', new Enum(Period::class)]
         ];
     }
 
