@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Income
     Route::get('/income', [IncomeController::class, 'index']);
+    Route::get('/income/detail', [IncomeController::class, 'detail']);
     Route::post('/income', [IncomeController::class, 'create']);
     Route::put('/income/{id}', [IncomeController::class, 'update']);
     Route::delete('/income/{id}', [IncomeController::class, 'delete']);

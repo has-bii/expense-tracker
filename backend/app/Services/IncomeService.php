@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Income;
+use Carbon\Carbon;
 use Illuminate\Pagination\CursorPaginator;
 
 class IncomeService
@@ -51,6 +52,44 @@ class IncomeService
     {
         $data = $this->getById($userId, $id);
         $data->delete();
+        return $data;
+    }
+
+    public function calculateMonthly(string $userId)
+    {
+        $current = Income::where('user_id', $userId)
+            ->selectRaw('COALESCE(SUM(amount),0) as total')
+            ->whereBetween('income_date', [
+                Carbon::now()->startOfMonth(),
+                Carbon::now()->endOfMonth()
+            ])
+            ->first();
+
+        $prev = Income::where('user_id', $userId)
+            ->selectRaw('COALESCE(SUM(amount),1) as prev_total')
+            ->whereBetween('income_date', [
+                Carbon::now()->startOfMonth()->subMonth(),
+                Carbon::now()->endOfMonth()->subMonth()
+            ])
+            ->first();
+
+        $source = Income::where('user_id', $userId)
+            ->selectRaw('source, COALESCE(SUM(amount),1) as total')
+            ->whereBetween('income_date', [
+                Carbon::now()->startOfMonth(),
+                Carbon::now()->endOfMonth(),
+            ])
+            ->groupBy('source')
+            ->orderByDesc('total')
+            ->get();
+
+        $data = [
+            'prev_total' => $prev['prev_total'],
+            'current_total' => $current['total'],
+            'percentage' => $current['total'] / $prev['prev_total'] * 100,
+            'sources' => $source
+        ];
+
         return $data;
     }
 }

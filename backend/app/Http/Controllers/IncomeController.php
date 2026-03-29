@@ -77,4 +77,15 @@ class IncomeController extends Controller
             'data' => $data
         ]);
     }
+
+    public function detail(Request $request): JsonResponse
+    {
+        $data = $this->service->calculateMonthly($request->user()->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'ok',
+            'data' => $data
+        ]);
+    }
 }

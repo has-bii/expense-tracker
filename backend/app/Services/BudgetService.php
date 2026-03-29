@@ -17,14 +17,14 @@ class BudgetService
                     ->whereColumn('expenses.user_id', 'budgets.user_id')
                     ->whereColumn('expenses.category_id', 'budgets.category_id')
                     ->whereRaw("expenses.expense_date >= CASE budgets.period
-                        WHEN 'daily' THEN CURDATE()
-                        WHEN 'weekly' THEN DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
-                        WHEN 'monthly' THEN DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                        WHEN 'daily' THEN CURRENT_DATE
+                        WHEN 'weekly' THEN CURRENT_DATE - (EXTRACT(ISODOW FROM CURRENT_DATE)::int - 1)
+                        WHEN 'monthly' THEN DATE_TRUNC('month', CURRENT_DATE)::date
                     END")
                     ->whereRaw("expenses.expense_date <= CASE budgets.period
-                        WHEN 'daily' THEN CURDATE()
-                        WHEN 'weekly' THEN DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 6 DAY)
-                        WHEN 'monthly' THEN LAST_DAY(CURDATE())
+                        WHEN 'daily' THEN CURRENT_DATE
+                        WHEN 'weekly' THEN CURRENT_DATE - (EXTRACT(ISODOW FROM CURRENT_DATE)::int - 1) + 6
+                        WHEN 'monthly' THEN (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day')::date
                     END"),
             ])
             ->get()
