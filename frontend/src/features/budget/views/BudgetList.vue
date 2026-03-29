@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { useBreadcrumbStore } from '@/stores/breadcrumb'
 import { useQuery } from '@tanstack/vue-query'
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { getBudgetsQueryOption } from '../api/get-budgets'
 import BudgetCard from '../components/BudgetCard.vue'
 import { Card, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import BudgetCreateDialog from '../components/BudgetCreateDialog.vue'
+import BudgetUpsertDialog from '../components/BudgetUpsertDialog.vue'
+import BudgetDeleteDialog from '../components/BudgetDeleteDialog.vue'
 import { Wallet, Target } from 'lucide-vue-next'
+import { useBudgetDelete } from '../hooks/use-budget-delete'
+import type { Budget } from '../types'
 
 const breadcrumb = useBreadcrumbStore()
 onBeforeMount(() => {
@@ -15,13 +18,34 @@ onBeforeMount(() => {
 })
 
 const { data = [], isLoading } = useQuery({ ...getBudgetsQueryOption() })
+
+// Edit state
+const selectedBudget = ref<
+  Pick<Budget, 'id' | 'category_id' | 'limit_amount' | 'period'> | undefined
+>()
+const isEditOpen = ref(false)
+
+const openEdit = (budget: Budget) => {
+  selectedBudget.value = budget
+  isEditOpen.value = true
+}
+
+const onEditOpenChange = (val: boolean) => {
+  isEditOpen.value = val
+  if (!val) {
+    selectedBudget.value = undefined
+  }
+}
+
+// Delete state
+const budgetDelete = useBudgetDelete()
 </script>
 
 <template>
   <div class="flex items-center justify-between">
     <h1 class="text-2xl font-bold">Budget</h1>
 
-    <BudgetCreateDialog />
+    <BudgetUpsertDialog />
   </div>
   <!-- Empty state -->
   <div
@@ -48,7 +72,13 @@ const { data = [], isLoading } = useQuery({ ...getBudgetsQueryOption() })
 
   <!-- Grid -->
   <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-    <BudgetCard v-for="budget in data" :key="budget.id" :data="budget" />
+    <BudgetCard
+      v-for="budget in data"
+      :key="budget.id"
+      :data="budget"
+      @edit="openEdit"
+      @delete="budgetDelete.select"
+    />
 
     <!-- Show skeleton -->
     <template v-if="isLoading">
@@ -60,4 +90,19 @@ const { data = [], isLoading } = useQuery({ ...getBudgetsQueryOption() })
       </Card>
     </template>
   </div>
+
+  <!-- Update dialog -->
+  <BudgetUpsertDialog
+    type="update"
+    :old-value="selectedBudget"
+    :open="isEditOpen"
+    @update:open="onEditOpenChange"
+  />
+
+  <!-- Delete dialog -->
+  <BudgetDeleteDialog
+    :is-open="budgetDelete.isOpen"
+    :budget="budgetDelete.budget"
+    :close="budgetDelete.close"
+  />
 </template>

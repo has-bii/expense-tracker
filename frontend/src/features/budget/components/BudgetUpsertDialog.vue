@@ -8,12 +8,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { CalendarIcon, Loader2, Plus } from 'lucide-vue-next'
+import { Check, Loader2, Plus } from 'lucide-vue-next'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 
-import { ref } from 'vue'
-import { useCreateBudgetForm } from '../api/create-budget'
+import { computed, ref, toRef } from 'vue'
+import { useCreateBudgetForm } from '../api/upsert-budget'
 import { useQuery } from '@tanstack/vue-query'
 import { getCategoriesQueryOption } from '@/features/category/api/get-categories'
 import {
@@ -23,26 +23,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import type { Period } from '../types'
-
-import { format } from 'date-fns'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
-import { parseDate } from '@internationalized/date'
+import type { Budget, Period } from '../types'
 
 const periods: Period[] = ['daily', 'weekly', 'monthly']
 
+// Props
+const props = withDefaults(
+  defineProps<{
+    oldValue?: Pick<Budget, 'id' | 'category_id' | 'limit_amount' | 'period'>
+    type?: 'create' | 'update'
+    open?: boolean
+  }>(),
+  { type: 'create' },
+)
+
+const emit = defineEmits<{
+  'update:open': [value: boolean]
+}>()
+
+const isUpdate = computed(() => props.type === 'update')
+
 // Dialog state
-const isOpen = ref(false)
-const toggleOpen = () => {
-  isOpen.value = !isOpen.value
-}
+const internalOpen = ref(false)
+const isOpen = computed({
+  get: () => (isUpdate.value ? props.open ?? false : internalOpen.value),
+  set: (val) => {
+    if (isUpdate.value) {
+      emit('update:open', val)
+    } else {
+      internalOpen.value = val
+    }
+  },
+})
 
 // Form state
 const { form, mutation } = useCreateBudgetForm({
   onSuccess: () => {
     isOpen.value = false
   },
+  oldValue: toRef(() => props.oldValue),
 })
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isInvalid = (field: any) => field.state.meta.isTouched && !field.state.meta.isValid
@@ -53,15 +72,19 @@ const { data: categories = [] } = useQuery({ ...getCategoriesQueryOption() })
 </script>
 
 <template>
-  <Dialog :open="isOpen" @update:open="toggleOpen">
-    <DialogTrigger as-child>
+  <Dialog v-model:open="isOpen">
+    <DialogTrigger v-if="!isUpdate" as-child>
       <Button size="sm">Add Budget <Plus /></Button>
     </DialogTrigger>
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Add new budget</DialogTitle>
+        <DialogTitle>{{ isUpdate ? 'Update budget' : 'Add new budget' }}</DialogTitle>
         <DialogDescription>
-          To create a new budget, enter category, limit amount, period, and start date
+          {{
+            isUpdate
+              ? 'Edit the limit amount and period of this budget'
+              : 'To create a new budget, enter category, limit amount, period, and start date'
+          }}
         </DialogDescription>
       </DialogHeader>
       <form @submit.prevent="form.handleSubmit">
@@ -74,6 +97,7 @@ const { data: categories = [] } = useQuery({ ...getCategoriesQueryOption() })
                 <Select
                   :name="field.name"
                   :model-value="field.state.value"
+                  :disabled="isUpdate"
                   @update:model-value="
                     (value) => {
                       field.handleChange(value?.toString() ?? '')
@@ -146,41 +170,14 @@ const { data: categories = [] } = useQuery({ ...getCategoriesQueryOption() })
             </template>
           </form.Field>
 
-          <!-- Start date -->
-          <form.Field name="start_date">
-            <template v-slot="{ field }">
-              <Field :data-invalid="isInvalid(field)">
-                <FieldLabel :for="field.name">Start date</FieldLabel>
-                <Popover modal>
-                  <PopoverTrigger as-child>
-                    <Button variant="outline" class="justify-start text-left font-normal">
-                      <CalendarIcon class="mr-2 h-4 w-4" />
-                      {{ format(field.state.value, 'PP') }}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent class="w-auto p-0">
-                    <Calendar
-                      :model-value="parseDate(format(field.state.value, 'y-MM-dd'))"
-                      :initial-focus="true"
-                      layout="month-and-year"
-                      @update:model-value="
-                        (value) => field.handleChange(new Date(value!.toString()))
-                      "
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FieldError v-if="isInvalid(field)" :errors="field.state.meta.errors" />
-              </Field>
-            </template>
-          </form.Field>
-
           <!-- Submit button -->
           <form.Subscribe>
             <template v-slot="{ canSubmit }">
               <Field>
                 <Button :disabled="!canSubmit || isPending">
-                  Add
+                  {{ isUpdate ? 'Update' : 'Add' }}
                   <Loader2 v-if="isPending" class="animate-spin" />
+                  <Check v-else-if="isUpdate" />
                   <Plus v-else />
                 </Button>
               </Field>
