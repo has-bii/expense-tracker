@@ -4,6 +4,7 @@ import { onBeforeMount } from 'vue'
 
 import IncomeTable from '../components/IncomeTable.vue'
 import IncomeUpsertDialog from '../components/IncomeUpsertDialog.vue'
+import IncomeDetailCards from '../components/IncomeDetailCards.vue'
 
 const breadcrumb = useBreadcrumbStore()
 onBeforeMount(() => {
@@ -16,5 +17,6 @@ onBeforeMount(() => {
     <h1 class="text-2xl font-bold">Income Overview</h1>
     <IncomeUpsertDialog />
   </div>
+  <IncomeDetailCards />
   <IncomeTable />
 </template>
