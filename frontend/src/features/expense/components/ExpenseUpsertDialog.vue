@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
+import { Button, type ButtonVariants } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -38,6 +38,8 @@ const props = withDefaults(
     oldValue?: Pick<Expense, 'id' | 'amount' | 'category_id' | 'description' | 'expense_date'>
     type?: 'create' | 'update'
     open?: boolean
+    variant?: ButtonVariants['variant']
+    size?: ButtonVariants['size']
   }>(),
   { type: 'create' },
 )
@@ -80,7 +82,9 @@ const { isPending } = mutation
 <template>
   <Dialog v-model:open="isOpen">
     <DialogTrigger v-if="!isUpdate" as-child>
-      <Button size="sm">Add Expense <Plus /></Button>
+      <Button :size="size ? size : 'sm'" :variant="variant ? variant : 'default'"
+        >Add Expense <Plus
+      /></Button>
     </DialogTrigger>
     <DialogContent>
       <DialogHeader>

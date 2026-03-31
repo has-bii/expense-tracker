@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
+import { Button, type ButtonVariants } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -30,6 +30,8 @@ const props = withDefaults(
     oldValue?: Pick<Income, 'id' | 'amount' | 'source' | 'description' | 'income_date'>
     type?: 'create' | 'update'
     open?: boolean
+    variant?: ButtonVariants['variant']
+    size?: ButtonVariants['size']
   }>(),
   { type: 'create' },
 )
@@ -43,7 +45,7 @@ const isUpdate = computed(() => props.type === 'update')
 // Dialog state
 const internalOpen = ref(false)
 const isOpen = computed({
-  get: () => (isUpdate.value ? props.open ?? false : internalOpen.value),
+  get: () => (isUpdate.value ? (props.open ?? false) : internalOpen.value),
   set: (val) => {
     if (isUpdate.value) {
       emit('update:open', val)
@@ -69,13 +71,19 @@ const { isPending } = mutation
 <template>
   <Dialog v-model:open="isOpen">
     <DialogTrigger v-if="!isUpdate" as-child>
-      <Button size="sm">Add Income <Plus /></Button>
+      <Button :size="size ? size : 'sm'" :variant="variant ? variant : 'default'"
+        >Add Income <Plus
+      /></Button>
     </DialogTrigger>
     <DialogContent>
       <DialogHeader>
         <DialogTitle>{{ isUpdate ? 'Update income' : 'Add new income' }}</DialogTitle>
         <DialogDescription>
-          {{ isUpdate ? 'Edit the details of this income' : 'Record a new revenue event to your account' }}
+          {{
+            isUpdate
+              ? 'Edit the details of this income'
+              : 'Record a new revenue event to your account'
+          }}
         </DialogDescription>
       </DialogHeader>
       <form @submit.prevent="form.handleSubmit">

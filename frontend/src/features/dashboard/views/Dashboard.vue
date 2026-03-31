@@ -11,6 +11,8 @@ import DashboardBudgetAlerts from '../components/DashboardBudgetAlerts.vue'
 import DashboardBudgetOverview from '../components/DashboardBudgetOverview.vue'
 import DashboardExpenseBreakdown from '../components/DashboardExpenseBreakdown.vue'
 import DashboardIncomeBreakdown from '../components/DashboardIncomeBreakdown.vue'
+import IncomeUpsertDialog from '@/features/income/components/IncomeUpsertDialog.vue'
+import ExpenseUpsertDialog from '@/features/expense/components/ExpenseUpsertDialog.vue'
 
 const breadcrumb = useBreadcrumbStore()
 
@@ -54,6 +56,17 @@ const netTrend = computed(() => {
 </script>
 
 <template>
+  <div class="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-4 mb-6">
+    <div class="space-y-0.5">
+      <h1 class="text-4xl font-bold">Dashboard Overview</h1>
+      <p class="text-muted-foreground">Refining your financial growth trajectory.</p>
+    </div>
+
+    <div class="inline-flex items-center gap-2">
+      <IncomeUpsertDialog type="create" size="lg" variant="secondary" />
+      <ExpenseUpsertDialog type="create" size="lg" variant="default" />
+    </div>
+  </div>
   <div class="flex flex-col gap-4">
     <!-- Summary Cards -->
     <div class="grid auto-rows-min gap-4 md:grid-cols-3">
