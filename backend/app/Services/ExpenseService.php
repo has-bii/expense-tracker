@@ -68,7 +68,7 @@ class ExpenseService
             ->first();
 
         $prev = Expense::where('user_id', $userId)
-            ->selectRaw('COALESCE(SUM(amount),1) as prev_total')
+            ->selectRaw('COALESCE(SUM(amount),0) as prev_total')
             ->whereBetween('expense_date', [
                 Carbon::now()->startOfMonth()->subMonth(),
                 Carbon::now()->endOfMonth()->subMonth()
@@ -76,7 +76,7 @@ class ExpenseService
             ->first();
 
         $detail = Expense::where('user_id', $userId)
-            ->selectRaw('category_id, COALESCE(SUM(amount),1) as total')
+            ->selectRaw('category_id, COALESCE(SUM(amount),0) as total')
             ->whereBetween('expense_date', [
                 Carbon::now()->startOfMonth(),
                 Carbon::now()->endOfMonth(),
@@ -88,7 +88,7 @@ class ExpenseService
         $data = [
             'prev_total' => $prev['prev_total'],
             'current_total' => $current['total'],
-            'percentage' => $current['total'] / $prev['prev_total'] * 100,
+            'percentage' => $prev['prev_total'] == 0 ? null : round($current['total'] / $prev['prev_total'] * 100, 2),
             'detail' => $detail
         ];
 

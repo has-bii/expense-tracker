@@ -66,7 +66,7 @@ class IncomeService
             ->first();
 
         $prev = Income::where('user_id', $userId)
-            ->selectRaw('COALESCE(SUM(amount),1) as prev_total')
+            ->selectRaw('COALESCE(SUM(amount),0) as prev_total')
             ->whereBetween('income_date', [
                 Carbon::now()->startOfMonth()->subMonth(),
                 Carbon::now()->endOfMonth()->subMonth()
@@ -74,7 +74,7 @@ class IncomeService
             ->first();
 
         $source = Income::where('user_id', $userId)
-            ->selectRaw('source, COALESCE(SUM(amount),1) as total')
+            ->selectRaw('source, COALESCE(SUM(amount),0) as total')
             ->whereBetween('income_date', [
                 Carbon::now()->startOfMonth(),
                 Carbon::now()->endOfMonth(),
@@ -86,7 +86,7 @@ class IncomeService
         $data = [
             'prev_total' => $prev['prev_total'],
             'current_total' => $current['total'],
-            'percentage' => $current['total'] / $prev['prev_total'] * 100,
+            'percentage' => $prev['prev_total'] == 0 ? null : round($current['total'] / $prev['prev_total'] * 100, 2),
             'sources' => $source
         ];
 
