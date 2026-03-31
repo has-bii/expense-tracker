@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Expense;
+use Carbon\Carbon;
 use Illuminate\Pagination\CursorPaginator;
 
 class ExpenseService
@@ -53,6 +54,44 @@ class ExpenseService
         $data = $this->getById($userId, $id);
         $data->load('category:id,name,icon');
         $data->delete();
+        return $data;
+    }
+
+    public function calculateMonthly(string $userId)
+    {
+        $current = Expense::where('user_id', $userId)
+            ->selectRaw('COALESCE(SUM(amount),0) as total')
+            ->whereBetween('expense_date', [
+                Carbon::now()->startOfMonth(),
+                Carbon::now()->endOfMonth()
+            ])
+            ->first();
+
+        $prev = Expense::where('user_id', $userId)
+            ->selectRaw('COALESCE(SUM(amount),1) as prev_total')
+            ->whereBetween('expense_date', [
+                Carbon::now()->startOfMonth()->subMonth(),
+                Carbon::now()->endOfMonth()->subMonth()
+            ])
+            ->first();
+
+        $detail = Expense::where('user_id', $userId)
+            ->selectRaw('category_id, COALESCE(SUM(amount),1) as total')
+            ->whereBetween('expense_date', [
+                Carbon::now()->startOfMonth(),
+                Carbon::now()->endOfMonth(),
+            ])
+            ->groupBy('category_id')
+            ->orderByDesc('total')
+            ->get();
+
+        $data = [
+            'prev_total' => $prev['prev_total'],
+            'current_total' => $current['total'],
+            'percentage' => $current['total'] / $prev['prev_total'] * 100,
+            'detail' => $detail
+        ];
+
         return $data;
     }
 }
