@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
-    protected $fillable = ['name', 'icon', 'color', 'is_default', 'user_id'];
+    protected $fillable = ['name', 'icon', 'user_id'];
 
     public function user()
     {
