@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import type { Expense } from '../types'
 import { expenseSchema, type ExpenseDto } from '../validations/expense.schema'
+import { format } from 'date-fns'
 import { computed, reactive, type Ref, toValue } from 'vue'
 
 type UpsertApi = {
@@ -67,7 +68,11 @@ export const useCreateExpenseForm = ({ onSuccess, oldValue }: Args) => {
       onSubmit: expenseSchema,
     },
     onSubmit: async ({ value }) => {
-      mutation.mutate(value, {
+      const dto: ExpenseDto = {
+        ...value,
+        expense_date: format(value.expense_date, 'yyyy-MM-dd'),
+      }
+      mutation.mutate(dto, {
         onSuccess,
       })
     },

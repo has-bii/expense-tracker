@@ -5,7 +5,8 @@ import { useForm } from '@tanstack/vue-form'
 import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import type { Income } from '../types'
-import { incomeSchema, type IncomeDto } from '../validations/income.schema'
+import { incomeSchema, type IncomeDto, type IncomeFormValues } from '../validations/income.schema'
+import { format } from 'date-fns'
 import { computed, reactive, type Ref, toValue } from 'vue'
 
 type UpsertApi = {
@@ -67,7 +68,11 @@ export const useCreateIncomeForm = ({ onSuccess, oldValue }: Args) => {
       onSubmit: incomeSchema,
     },
     onSubmit: async ({ value }) => {
-      mutation.mutate(value, {
+      const dto: IncomeDto = {
+        ...value,
+        income_date: format(value.income_date, 'yyyy-MM-dd'),
+      }
+      mutation.mutate(dto, {
         onSuccess,
       })
     },
