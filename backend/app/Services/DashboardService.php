@@ -19,6 +19,7 @@ class DashboardService
 
             $expenseTotals = Expense::where('user_id', $userId)
                 ->selectRaw("
+                    COALESCE(SUM(amount), 0) as all_time_total,
                     COALESCE(SUM(CASE WHEN expense_date BETWEEN ? AND ? THEN amount ELSE 0 END), 0) as current_total,
                     COALESCE(SUM(CASE WHEN expense_date BETWEEN ? AND ? THEN amount ELSE 0 END), 0) as prev_total
                 ", [$currentStart, $currentEnd, $prevStart, $prevEnd])
@@ -26,6 +27,7 @@ class DashboardService
 
             $incomeTotals = Income::where('user_id', $userId)
                 ->selectRaw("
+                    COALESCE(SUM(amount), 0) as all_time_total,
                     COALESCE(SUM(CASE WHEN income_date BETWEEN ? AND ? THEN amount ELSE 0 END), 0) as current_total,
                     COALESCE(SUM(CASE WHEN income_date BETWEEN ? AND ? THEN amount ELSE 0 END), 0) as prev_total
                 ", [$currentStart, $currentEnd, $prevStart, $prevEnd])
@@ -48,17 +50,27 @@ class DashboardService
                 ->limit(5)
                 ->get();
 
-            $currentNet = $incomeTotals->current_total - $expenseTotals->current_total;
-            $prevNet = $incomeTotals->prev_total - $expenseTotals->prev_total;
+            $allTimeIncome = (float) $incomeTotals->all_time_total;
+            $allTimeExpense = (float) $expenseTotals->all_time_total;
+            $currentIncome = (float) $incomeTotals->current_total;
+            $currentExpense = (float) $expenseTotals->current_total;
+            $prevIncome = (float) $incomeTotals->prev_total;
+            $prevExpense = (float) $expenseTotals->prev_total;
+
+            $currentNet = $currentIncome - $currentExpense;
+            $prevNet = $prevIncome - $prevExpense;
 
             return [
+                'all_time_net_balance' => $allTimeIncome - $allTimeExpense,
+                'all_time_income' => $allTimeIncome,
+                'all_time_expense' => $allTimeExpense,
                 'net_balance' => $currentNet,
-                'total_income' => $incomeTotals->current_total,
-                'total_expense' => $expenseTotals->current_total,
+                'total_income' => $currentIncome,
+                'total_expense' => $currentExpense,
                 'prev_net_balance' => $prevNet,
                 'percentage_change' => $prevNet == 0 ? null : round(($currentNet - $prevNet) / abs($prevNet) * 100, 2),
-                'top_categories' => $topCategories,
-                'top_sources' => $topSources,
+                'top_categories' => $topCategories->toArray(),
+                'top_sources' => $topSources->toArray(),
             ];
         });
     }
