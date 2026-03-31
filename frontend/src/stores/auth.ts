@@ -4,6 +4,7 @@ import type { Response, ResponseSuccess } from '@/types/response'
 import type { User } from '@/types/user'
 import { parseAxiosError } from '@/utils/parse-axios-error'
 import { token } from '@/utils/token'
+import { useQueryClient } from '@tanstack/vue-query'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -19,6 +20,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const isInitialized = ref(false)
   const isLoggingOut = ref(false)
+  const query = useQueryClient()
 
   const isAuthenticated = computed(() => !!user.value)
 
@@ -86,6 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       token.removeToken()
       user.value = null
+      query.clear()
 
       router.push('/login')
 
