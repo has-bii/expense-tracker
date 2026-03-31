@@ -22,7 +22,7 @@ const trendPercentage = computed(() =>
   data.value ? Number((data.value.percentage - 100).toFixed(1)) : 0,
 )
 
-const isPositiveTrend = computed(() => trendPercentage.value < 0)
+const isPositiveTrend = computed(() => trendPercentage.value > 0)
 
 const detail = computed(() => {
   if (!data.value || !currentTotal.value || !categories.value) return []
@@ -51,7 +51,7 @@ const detail = computed(() => {
 
         <div class="inline-flex items-center gap-2">
           <Skeleton v-if="!data" class="h-8 w-full" />
-          <Badge v-else :variant="isPositiveTrend ? 'secondary' : 'destructive'">
+          <Badge v-else :variant="!isPositiveTrend ? 'secondary' : 'destructive'">
             <TrendingUp v-if="isPositiveTrend" />
             <TrendingDown v-else-if="trendPercentage < 0" />
             {{ trendPercentage }}%
