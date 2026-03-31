@@ -4,18 +4,30 @@ import { Calendar } from './ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
-import { parseDate } from '@internationalized/date'
+import { parseDate, type DateValue } from '@internationalized/date'
 import { CalendarIcon } from 'lucide-vue-next'
+import { ref, watch, type Ref } from 'vue'
 
 const model = defineModel<Date>()
 
 defineProps<{
   placeholder?: string
+  modal?: boolean
 }>()
+
+// Stable ref to prevent Calendar from resetting displayed month on re-render
+const calendarValue = ref<DateValue>() as Ref<DateValue | undefined>
+watch(
+  model,
+  (date) => {
+    calendarValue.value = date ? parseDate(format(date, 'yyyy-MM-dd')) : undefined
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
-  <Popover>
+  <Popover :modal="modal">
     <PopoverTrigger as-child>
       <Button
         variant="outline"
@@ -33,11 +45,14 @@ defineProps<{
     </PopoverTrigger>
     <PopoverContent class="w-auto p-0">
       <Calendar
-        :model-value="model ? parseDate(format(model, 'yyyy-MM-dd')) : undefined"
+        :model-value="calendarValue"
         :initial-focus="true"
         layout="month-and-year"
         @update:model-value="
-          (v) => (model = v ? new Date(v.toString()) : undefined)
+          (v) => {
+            calendarValue = v
+            model = v ? new Date(v.toString()) : undefined
+          }
         "
       />
     </PopoverContent>

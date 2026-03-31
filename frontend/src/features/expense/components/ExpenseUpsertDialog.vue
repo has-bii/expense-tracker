@@ -8,7 +8,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { CalendarIcon, Check, Loader2, Plus } from 'lucide-vue-next'
+import DatePicker from '@/components/DatePicker.vue'
+import { Check, Loader2, Plus } from 'lucide-vue-next'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import {
   Select,
@@ -20,11 +21,6 @@ import {
 
 import { computed, ref, toRef } from 'vue'
 import { useCreateExpenseForm } from '../api/upsert-expense'
-
-import { format } from 'date-fns'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
-import { parseDate } from '@internationalized/date'
 import {
   InputGroup,
   InputGroupAddon,
@@ -55,7 +51,7 @@ const isUpdate = computed(() => props.type === 'update')
 // Dialog state
 const internalOpen = ref(false)
 const isOpen = computed({
-  get: () => (isUpdate.value ? props.open ?? false : internalOpen.value),
+  get: () => (isUpdate.value ? (props.open ?? false) : internalOpen.value),
   set: (val) => {
     if (isUpdate.value) {
       emit('update:open', val)
@@ -91,9 +87,7 @@ const { isPending } = mutation
         <DialogTitle>{{ isUpdate ? 'Update expense' : 'Add new expense' }}</DialogTitle>
         <DialogDescription>
           {{
-            isUpdate
-              ? 'Edit the details of this expense'
-              : 'Record a new expense to your account'
+            isUpdate ? 'Edit the details of this expense' : 'Record a new expense to your account'
           }}
         </DialogDescription>
       </DialogHeader>
@@ -152,24 +146,11 @@ const { isPending } = mutation
             <template v-slot="{ field }">
               <Field :data-invalid="isInvalid(field)">
                 <FieldLabel :for="field.name">Expense Date</FieldLabel>
-                <Popover modal>
-                  <PopoverTrigger as-child>
-                    <Button variant="outline" class="justify-start text-left font-normal">
-                      <CalendarIcon class="mr-2 h-4 w-4" />
-                      {{ format(field.state.value, 'PP') }}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent class="w-auto p-0">
-                    <Calendar
-                      :model-value="parseDate(format(field.state.value, 'y-MM-dd'))"
-                      :initial-focus="true"
-                      layout="month-and-year"
-                      @update:model-value="
-                        (value) => field.handleChange(new Date(value!.toString()))
-                      "
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DatePicker
+                  :model-value="field.state.value"
+                  modal
+                  @update:model-value="(val) => field.handleChange(val!)"
+                />
                 <FieldError v-if="isInvalid(field)" :errors="field.state.meta.errors" />
               </Field>
             </template>
